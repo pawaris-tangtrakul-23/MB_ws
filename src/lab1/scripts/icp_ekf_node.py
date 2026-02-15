@@ -18,9 +18,9 @@ MAP_ORIGIN_X = -25.0  # Real-world X at bottom-left
 MAP_ORIGIN_Y = -25.0  # Real-world Y at bottom-left
 
 # ICP Parameters
-ICP_MAX_ITERATIONS = 50
-ICP_TOLERANCE = 0.0001
-ICP_OUTLIER_THRESHOLD = 0.5  # meters
+ICP_MAX_ITERATIONS = 100
+ICP_TOLERANCE = 0.00001
+ICP_OUTLIER_THRESHOLD = 0.2
 
 
 # --- MATH FUNCTIONS ---
