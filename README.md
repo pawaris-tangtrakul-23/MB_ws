@@ -34,49 +34,53 @@ sudo apt install ros-humble-slam-toolbox ros-humble-tf-transformations
 ### 1. Create Workspace
 
 ```bash
-mkdir -p ~/ros2_ws/src
-cd ~/ros2_ws/src
+mkdir -p ~/{your_ws_name}/src
+cd ~/{your_ws_name}/src
 ```
 
-### 2. Clone/Copy Package
+### 2. Clone Repository
 
 ```bash
-# Option A: Clone from repository
-git clone <your-repo-url> lab1
-
-# Option B: Copy existing package
-cp -r /path/to/lab1 .
+# Clone from GitHub (lab1 branch)
+git clone -b lab1 https://github.com/pawaris-tangtrakul-23/MB_ws.git
+cd MB_ws/src/lab1
 ```
 
-### 3. Install Dataset
+### 3. Extract Dataset
 
-Choose one of these methods:
+The dataset is included in the repository as a zip file. Extract it:
 
-#### Method A: Environment Variable (Recommended)
 ```bash
-# Copy dataset to a permanent location
-mkdir -p ~/datasets
-cp -r /path/to/FRA532_LAB1_DATASET ~/datasets/
+# Navigate to the lab1 package
+cd ~/{your_ws_name}/src/MB_ws/src/lab1
 
+# Extract the dataset
+unzip FRA532_LAB1_DATASET.zip
+```
+
+### 4. Set Dataset Path (Recommended)
+
+```bash
 # Set environment variable (add to ~/.bashrc for permanence)
+export LAB1_DATASET_PATH="$HOME/{your_ws_name}/src/MB_ws/src/lab1/FRA532_LAB1_DATASET"
+echo 'export LAB1_DATASET_PATH="$HOME/{your_ws_name}/src/MB_ws/src/lab1/FRA532_LAB1_DATASET"' >> ~/.bashrc
+
+# Or copy dataset to a permanent location
+mkdir -p ~/datasets
+cp -r FRA532_LAB1_DATASET ~/datasets/
 export LAB1_DATASET_PATH="$HOME/datasets/FRA532_LAB1_DATASET"
 echo 'export LAB1_DATASET_PATH="$HOME/datasets/FRA532_LAB1_DATASET"' >> ~/.bashrc
 ```
 
-#### Method B: In Package Source
-```bash
-cp -r /path/to/FRA532_LAB1_DATASET ~/ros2_ws/src/lab1/
-```
-
-### 4. Build Package
+### 5. Build Package
 
 ```bash
-cd ~/ros2_ws
+cd ~/{your_ws_name}
 source /opt/ros/humble/setup.bash
 colcon build --packages-select lab1
 ```
 
-### 5. Source Workspace
+### 6. Source Workspace
 
 ```bash
 source install/setup.bash
@@ -225,13 +229,13 @@ ros2 launch lab1 ekf.launch.py bag_path:=/explicit/path/to/bag
 **Solutions**:
 ```bash
 # Source workspace
-source ~/ros2_ws/install/setup.bash
+source ~/{your_ws_name}/install/setup.bash
 
 # Verify package exists
 ros2 pkg list | grep lab1
 
 # Rebuild if needed
-cd ~/ros2_ws
+cd ~/{your_ws_name}
 colcon build --packages-select lab1
 source install/setup.bash
 ```
@@ -268,7 +272,7 @@ ros2 launch lab1 ekf.launch.py use_imu:=true
 **Solutions**:
 ```bash
 # Clean build
-cd ~/ros2_ws
+cd ~/{your_ws_name}
 rm -rf build install log
 colcon build --packages-select lab1
 
@@ -394,13 +398,6 @@ ros2 launch lab1 slam_mapping.launch.py
 
 ### Compare Odometry Sources
 
-```bash
-# Launch path publisher to visualize all sources
-ros2 run lab1 path_publisher_node.py
-
-# View in RViz (add Path displays for /path_raw, /path_ekf, /path_icp)
-rviz2
-```
 
 ### Save Map
 
@@ -411,35 +408,3 @@ After SLAM:
 cp /tmp/slam_toolbox_map.* ~/maps/
 ```
 
-## 🤝 Contributing
-
-Contributions are welcome! Please:
-1. Follow ROS2 coding standards
-2. Test on fresh workspace before submitting
-3. Update documentation for new features
-4. Ensure portability (no hardcoded paths!)
-
-## 📄 License
-
-[Specify your license here]
-
-## 👥 Authors
-
-[Add author information]
-
-## 🙏 Acknowledgments
-
-- SLAM Toolbox by Steve Macenski
-- ROS2 community
-- FRA532 Lab dataset contributors
-
-## 📞 Support
-
-For issues and questions:
-- Check [Troubleshooting](#-troubleshooting) section
-- See [PORTABLE_SETUP.md](PORTABLE_SETUP.md)
-- Open an issue on GitHub (if applicable)
-
----
-
-**Built with ROS2 Humble** | **Fully Portable** | **Production Ready**
