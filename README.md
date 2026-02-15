@@ -132,7 +132,7 @@ Runs:
 ### SLAM Mapping
 
 ```bash
-ros2 launch lab1 slam_mapping.launch.py
+ros2 launch lab1 slam_mapping.launch.py bag_path:={your_bag_path_folder}
 ```
 
 Runs complete SLAM pipeline:
@@ -142,18 +142,11 @@ Runs complete SLAM pipeline:
 - SLAM Toolbox
 - RViz
 
-### SLAM with Package Structure
-
-```bash
-ros2 launch lab1 slam_mapping_pkg.launch.py
-```
-
-Uses installed executables and proper package structure.
 
 ### ICP + EKF Fusion SLAM
 
 ```bash
-ros2 launch lab1 icp_ekf_launch.py bag_file:=/path/to/bag_folder
+ros2 launch lab1 icp_ekf_launch.py bag_file:={your_bag_path_folder}
 ```
 
 Advanced SLAM using:
