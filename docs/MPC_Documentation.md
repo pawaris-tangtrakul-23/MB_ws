@@ -431,7 +431,7 @@ The drone is commanded to hover at a target position using `/set_target_xyz`. Re
 
 <div align="center">
 
-![Hover GOTO](docs/flight_20260312_165112_GOTO_1.0_1.0_3.0.png)
+![Hover GOTO](flight_20260312_165112_GOTO_1.0_1.0_3.0.png)
 
 </div>
 
@@ -445,7 +445,7 @@ The drone is commanded to hover at a target position using `/set_target_xyz`. Re
 
 <div align="center">
 
-![2D Straight Forward](docs/flight_20260312_161831_2D_STRAIGHT_F.png)
+![2D Straight Forward](flight_20260312_161831_2D_STRAIGHT_F.png)
 
 </div>
 
@@ -456,7 +456,7 @@ The drone is commanded to hover at a target position using `/set_target_xyz`. Re
 
 <div align="center">
 
-![2D Sine](docs/flight_20260312_160235_2D_SINE.png)
+![2D Sine](flight_20260312_160235_2D_SINE.png)
 
 </div>
 
@@ -468,7 +468,7 @@ The drone is commanded to hover at a target position using `/set_target_xyz`. Re
 
 <div align="center">
 
-![2D Ramp Wave](docs/flight_20260312_162045_2D_RAMP_WAVE.png)
+![2D Ramp Wave](flight_20260312_162045_2D_RAMP_WAVE.png)
 
 </div>
 
@@ -482,7 +482,7 @@ The drone is commanded to hover at a target position using `/set_target_xyz`. Re
 
 <div align="center">
 
-![3D Helix](docs/flight_20260312_153651_3D_HELIX.png)
+![3D Helix](flight_20260312_153651_3D_HELIX.png)
 
 </div>
 
@@ -494,7 +494,7 @@ The drone is commanded to hover at a target position using `/set_target_xyz`. Re
 
 <div align="center">
 
-![3D Straight](docs/flight_20260312_162418_3D_STRAIGHT.png)
+![3D Straight](flight_20260312_162418_3D_STRAIGHT.png)
 
 </div>
 
@@ -505,7 +505,7 @@ The drone is commanded to hover at a target position using `/set_target_xyz`. Re
 
 <div align="center">
 
-![3D Figure-8](docs/flight_20260312_162643_3D_FIGURE8.png)
+![3D Figure-8](flight_20260312_162643_3D_FIGURE8.png)
 
 </div>
 
