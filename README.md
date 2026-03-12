@@ -67,27 +67,29 @@ git clone <your-repo-url> Mobile_Robot-Lab2
 ## Build
 
 ```bash
-cd ~/Mobile_Robot-Lab2
+cd <your_workspace>          # e.g. cd ~/Mobile_Robot-Lab2
 colcon build --symlink-install
 source install/setup.bash
 ```
 
-> Add `source ~/Mobile_Robot-Lab2/install/setup.bash` to your `~/.bashrc` to auto-source on every terminal.
+> Add `source <your_workspace>/install/setup.bash` to your `~/.bashrc` to auto-source on every terminal.
 
 ---
 
 ## Launch
 
-### MPC Controller (default: no-wind environment)
+### MPC Controller with Wind (default)
 
 ```bash
 ros2 launch quad_description mpc.launch.py
 ```
 
-### With Wind Disturbance (4 m/s in -y)
+### No-Wind Environment
 
 ```bash
-ros2 launch quad_description mpc.launch.py world:=$(ros2 pkg prefix quad_description)/share/quad_description/worlds/wind.sdf
+ros2 launch quad_description mpc.launch.py \
+  world:=$(ros2 pkg prefix quad_description)/share/quad_description/worlds/empty.sdf \
+  env_tag:=nowind
 ```
 
 This launches:
@@ -96,13 +98,19 @@ This launches:
 - ROS2-Gazebo bridge
 - MPC controller node (`mpc_node.py`)
 
-### (Optional) Real-time 3D Trajectory Plot
+### (Optional) Real-time 3D Trajectory Plot + CSV Recorder
 
 In a separate terminal:
 
 ```bash
-ros2 run lab2 plot_path.py --ros-args -p use_sim_time:=true
+# With wind (default env_tag)
+ros2 run lab2 plot_path_mpc.py --ros-args -p use_sim_time:=true -p env_tag:=wind
+
+# Without wind
+ros2 run lab2 plot_path_mpc.py --ros-args -p use_sim_time:=true -p env_tag:=nowind
 ```
+
+CSV filenames include the environment tag, e.g. `flight_20260312_153651_3D_HELIX_wind.csv`.
 
 ---
 
@@ -206,17 +214,39 @@ ros2 topic pub --once /set_flight_mode std_msgs/String "data: 'IDLE'"
 
 ## Plotting Flight Data
 
-`plot_path.py` automatically records CSV files to `~/Mobile_Robot-Lab2/docs/` during trajectory flights. To generate a 6-panel dashboard from the CSV:
+`plot_path_mpc.py` automatically records CSV files to the workspace `docs/` folder during trajectory flights. To generate a 6-panel dashboard from the CSV:
 
 ```bash
+cd <your_workspace>
+
 # Plot the most recent flight data
-python3 ~/Mobile_Robot-Lab2/docs/plot_csv.py
+python3 docs/plot_csv.py
 
 # Plot a specific CSV file
-python3 ~/Mobile_Robot-Lab2/docs/plot_csv.py docs/flight_20260312_153651_3D_HELIX.csv
+python3 docs/plot_csv.py docs/flight_20260312_153651_3D_HELIX.csv
+```
+
+You can also override the CSV output directory via ROS parameter:
+
+```bash
+ros2 run lab2 plot_path_mpc.py --ros-args -p use_sim_time:=true -p csv_dir:=/path/to/output
 ```
 
 Each plot includes: Position vs Setpoint, Position Error, Velocity, Attitude (RPY), 3D Path, and Summary Statistics. A PNG is saved alongside the CSV.
+
+### Error Analysis (MSE / RMSE)
+
+```bash
+cd <your_workspace>
+
+# Compute MSE/RMSE for all flight CSVs and save error_report.csv
+python3 docs/calc_error.py
+
+# Specific files only
+python3 docs/calc_error.py docs/flight_20260312_174049_3D_HELIX_wind.csv
+```
+
+Outputs a table with per-axis and total MSE/RMSE for each file, plus a summary CSV at `docs/error_report.csv`.
 
 ---
 
@@ -230,7 +260,7 @@ Mobile_Robot-Lab2/
 │   │   │   ├── mpc_node.py               # MPC controller (OSQP)
 │   │   │   ├── lqr_node.py               # LQR controller
 │   │   │   ├── pid_node.py               # PID controller
-│   │   │   └── plot_path.py              # Trajectory plotter + CSV logger
+│   │   │   └── plot_path_mpc.py           # Trajectory plotter + CSV logger
 │   │   ├── CMakeLists.txt
 │   │   └── package.xml
 │   └── fra532-lab2-control-pao-pond_hero/
@@ -246,8 +276,10 @@ Mobile_Robot-Lab2/
 │           └── meshes/                    # 3D robot meshes
 ├── docs/
 │   ├── MPC_Documentation.md               # Full MPC technical documentation
-│   ├── plot_csv.py                        # Flight data visualization script
-│   └── flight_*.csv / flight_*.png        # Recorded flight data & plots
+│   ├── plot_csv.py                        # Flight data visualization (6-panel dashboard)
+│   ├── calc_error.py                      # MSE/RMSE error analysis
+│   ├── error_report.csv                   # Summary error report (auto-generated)
+│   └── flight_*_{nowind,wind}.csv/.png    # Recorded flight data & plots
 └── README.md
 ```
 

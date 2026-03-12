@@ -56,7 +56,7 @@ All flight modes are tested in two environments:
 │                                │                                      │
 │                     ┌──────────▼─────────────┐                       │
 │                     │  Trajectory Plotter     │                       │
-│                     │  (plot_path.py)         │                       │
+│                     │  (plot_path_mpc.py)     │                       │
 │                     │  3D Visualization       │                       │
 │                     └────────────────────────┘                       │
 └──────────────────────────────────────────────────────────────────────┘
@@ -423,11 +423,20 @@ $$\omega_i = \sqrt{\frac{T_i}{k_F}}, \quad \text{clamped to } [0, \omega_{max}]$
 
 ## 4. Results
 
-Flight data is logged automatically by `plot_path.py` and visualized using `docs/plot_csv.py`. Each trajectory generates a CSV file and a corresponding PNG dashboard with 6 panels: position tracking, error, velocity, attitude, 3D path, and summary statistics.
+Flight data is logged automatically by `plot_path_mpc.py` and visualized using `docs/plot_csv.py`. Each trajectory generates a CSV file and a corresponding PNG dashboard with 6 panels: position tracking, error, velocity, attitude, 3D path, and summary statistics.
+
+All flight modes are tested in two environments:
+
+| Environment | World File | Condition |
+|-------------|-----------|-----------|
+| No Wind | `empty.sdf` | Ideal conditions |
+| With Wind | `wind.sdf` | Constant 4 m/s wind in $-y$ direction (with gusts) |
 
 ### 4.1 Part 1: Hover Control (GOTO)
 
 The drone is commanded to hover at a target position using `/set_target_xyz`. Recording starts automatically and stops 3 seconds after the drone reaches the setpoint (error < 0.15 m).
+
+**No Wind:**
 
 <div align="center">
 
@@ -443,87 +452,187 @@ The drone is commanded to hover at a target position using `/set_target_xyz`. Re
 
 #### 2D Straight Line Forward (+3.0 m/s)
 
+**No Wind:**
+
 <div align="center">
 
-![2D Straight Forward](flight_20260312_161831_2D_STRAIGHT_F.png)
+![2D Straight Forward — No Wind](flight_20260312_161831_2D_STRAIGHT_F.png)
+
+</div>
+
+**With Wind:**
+
+<div align="center">
+
+![2D Straight Forward — Wind](flight_20260312_174858_2D_STRAIGHT_F_wind.png)
 
 </div>
 
 - Constant-velocity forward flight in $+x$ while maintaining altitude
 - The reference governor smoothly ramps up to the trajectory speed
+- Wind causes a visible y-axis drift that the controller must counteract
 
 #### 2D Sine Wave (0.3 m/s forward, ±1.0 m amplitude)
 
+**No Wind:**
+
 <div align="center">
 
-![2D Sine](flight_20260312_160235_2D_SINE.png)
+![2D Sine — No Wind](flight_20260312_160235_2D_SINE.png)
+
+</div>
+
+**With Wind:**
+
+<div align="center">
+
+![2D Sine — Wind](flight_20260312_174626_2D_SINE_wind.png)
 
 </div>
 
 - Sinusoidal altitude profile while moving forward in $+x$
 - MPC's prediction horizon anticipates the sine wave curvature
-- Phase lag is present but small due to the 0.2 s preview window
+- Under wind, cross-axis (y) error increases but z-tracking remains accurate
 
 #### 2D Ramp Wave (0.8 m/s forward, ±1.5 m triangle wave, 4 s period)
 
+**No Wind:**
+
 <div align="center">
 
-![2D Ramp Wave](flight_20260312_162045_2D_RAMP_WAVE.png)
+![2D Ramp Wave — No Wind](flight_20260312_162045_2D_RAMP_WAVE.png)
+
+</div>
+
+**With Wind:**
+
+<div align="center">
+
+![2D Ramp Wave — Wind](flight_20260312_175120_2D_RAMP_WAVE_wind.png)
 
 </div>
 
 - Triangle wave altitude with sharp direction changes
 - Tests the controller's response to non-smooth reference signals
-- The reference governor smooths the sharp corners of the ramp wave
+- Wind increases the overall tracking error but the controller remains stable
 
 ### 4.3 Part 3: 3D Trajectory Tracking
 
 #### 3D Helix (radius 2 m, $\omega$ = 0.5 rad/s, +0.1 m/s climb)
 
+**No Wind:**
+
 <div align="center">
 
-![3D Helix](flight_20260312_153651_3D_HELIX.png)
+![3D Helix — No Wind](flight_20260312_153651_3D_HELIX.png)
+
+</div>
+
+**With Wind:**
+
+<div align="center">
+
+![3D Helix — Wind](flight_20260312_174049_3D_HELIX_wind.png)
 
 </div>
 
 - Helical spiral with simultaneous $x$, $y$, and $z$ changes
 - The MPC preview capability helps anticipate circular turns
-- Tracking performance is good due to the smooth trajectory profile
+- Wind slightly increases xy-tracking error but the helix shape is maintained
 
 #### 3D Straight Line (X +1.0, Y +0.5, Z +0.2 m/s)
 
+**No Wind:**
+
 <div align="center">
 
-![3D Straight](flight_20260312_162418_3D_STRAIGHT.png)
+![3D Straight — No Wind](flight_20260312_162418_3D_STRAIGHT.png)
+
+</div>
+
+**With Wind:**
+
+<div align="center">
+
+![3D Straight — Wind](flight_20260312_174300_3D_STRAIGHT_wind.png)
 
 </div>
 
 - Constant-velocity 3D diagonal flight
-- Tests multi-axis simultaneous tracking
+- Wind causes additional lateral correction effort, visible in increased attitude angles
 
 #### 3D Figure-8 (±2 m XY, ±0.5 m Z, 0.3 rad/s)
 
+**No Wind:**
+
 <div align="center">
 
-![3D Figure-8](flight_20260312_162643_3D_FIGURE8.png)
+![3D Figure-8 — No Wind](flight_20260312_162643_3D_FIGURE8.png)
+
+</div>
+
+**With Wind:**
+
+<div align="center">
+
+![3D Figure-8 — Wind](flight_20260312_174357_3D_FIGURE8_wind.png)
 
 </div>
 
 - Parametric figure-8 pattern: $x = a \sin(\omega t)$, $y = a \sin(\omega t) \cos(\omega t)$
 - Tests the controller on a continuously reversing trajectory
-- Z oscillation adds an additional tracking challenge
+- Wind adds asymmetry to the figure-8 but tracking quality remains acceptable
 
-### 4.4 Controller Performance Summary
+### 4.4 RMSE Error Analysis
 
-| Scenario | Tracking Quality | Stability | Notes |
-|----------|-----------------|-----------|-------|
-| Hover / GOTO | Excellent | Stable | Settling within 3-5 s |
+Error metrics are computed using `docs/calc_error.py` across all flight data.
+
+#### No Wind
+
+| Trajectory | RMSE X (m) | RMSE Y (m) | RMSE Z (m) | RMSE Total (m) |
+|-----------|-----------|-----------|-----------|---------------|
+| GOTO (1,1,3) | 0.3635 | 0.3428 | 0.3716 | 0.6227 |
+| 2D Straight F | 12.3977 | 0.1925 | 0.0077 | 12.3992 |
+| 2D Sine | 0.2312 | 0.0298 | 0.2306 | 0.3278 |
+| 2D Ramp Wave | 0.6166 | 0.0794 | 0.4822 | 0.7868 |
+| 3D Helix | 0.5128 | 0.4670 | 0.0117 | 0.6937 |
+| 3D Straight | 0.8058 | 0.2588 | 0.0407 | 0.8473 |
+| 3D Figure-8 | 0.3250 | 0.2993 | 0.1455 | 0.4652 |
+
+#### With Wind (4 m/s, $-y$)
+
+| Trajectory | RMSE X (m) | RMSE Y (m) | RMSE Z (m) | RMSE Total (m) |
+|-----------|-----------|-----------|-----------|---------------|
+| 2D Straight F | 41.2405 | 0.0754 | 0.0040 | 41.2406 |
+| 2D Sine | 0.5900 | 0.1032 | 0.2341 | 0.6431 |
+| 2D Ramp Wave | 0.9714 | 0.0619 | 0.4826 | 1.0864 |
+| 3D Helix | 0.6068 | 0.4963 | 0.0136 | 0.7840 |
+| 3D Straight | 1.1276 | 0.3836 | 0.0427 | 1.1918 |
+| 3D Figure-8 | 0.4557 | 0.3255 | 0.1456 | 0.5786 |
+
+> **Note:** The high RMSE X for Straight F is expected — it is a constant-velocity trajectory where the reference moves continuously at +3.0 m/s. The governor rate-limits how fast the drone can follow, so the position error grows proportionally to the trajectory duration. This is not a tracking failure but a reference governor design choice.
+
+#### Wind vs No-Wind Comparison (excluding Straight F)
+
+| Trajectory | RMSE Total (No Wind) | RMSE Total (Wind) | Increase |
+|-----------|---------------------|-------------------|----------|
+| 2D Sine | 0.328 m | 0.643 m | +96% |
+| 2D Ramp Wave | 0.787 m | 1.086 m | +38% |
+| 3D Helix | 0.694 m | 0.784 m | +13% |
+| 3D Straight | 0.847 m | 1.192 m | +41% |
+| 3D Figure-8 | 0.465 m | 0.579 m | +24% |
+
+### 4.5 Controller Performance Summary
+
+| Scenario | No Wind | With Wind | Notes |
+|----------|---------|-----------|-------|
+| Hover / GOTO | Excellent | — | Settling within 3-5 s |
 | 2D Straight F/B | Excellent | Stable | Governor limits acceleration |
-| 2D Sine | Good | Stable | Slight phase lag from horizon |
-| 2D Ramp Wave | Good | Stable | Governor smooths sharp corners |
-| 3D Helix | Good | Stable | Circular tracking benefits from preview |
-| 3D Straight | Excellent | Stable | Smooth multi-axis tracking |
-| 3D Figure-8 | Good | Stable | Reversing trajectory well handled |
+| 2D Sine | Good | Good | Phase lag; wind increases y-error |
+| 2D Ramp Wave | Good | Good | Governor smooths sharp corners |
+| 3D Helix | Good | Good | Circular tracking; wind +13% RMSE |
+| 3D Straight | Excellent | Good | Wind increases lateral error |
+| 3D Figure-8 | Good | Good | Reversing trajectory; wind +24% RMSE |
 
 ---
 

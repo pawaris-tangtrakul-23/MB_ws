@@ -125,7 +125,7 @@ def generate_launch_description():
 
     plot_path = Node(
         package="lab2",
-        executable="plot_path.py",
+        executable="plot_path_mpc.py",
         parameters=[{'use_sim_time': True}]
     )
 

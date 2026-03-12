@@ -40,19 +40,17 @@ def generate_launch_description():
     )
 
     default_world = os.path.join(
-        get_package_share_directory(package_name), "worlds", "empty.sdf"
+        get_package_share_directory(package_name), "worlds", "wind.sdf"
     )
 
-    # default_world = os.path.join(
-    #     get_package_share_directory(package_name),
-    #     'worlds',
-    #     'wind.sdf'
-    #     )
-
     world = LaunchConfiguration("world")
+    env_tag = LaunchConfiguration("env_tag")
 
     world_arg = DeclareLaunchArgument(
         "world", default_value=default_world, description="World to load"
+    )
+    env_tag_arg = DeclareLaunchArgument(
+        "env_tag", default_value="wind", description="Environment tag for CSV filenames (e.g. nowind, wind)"
     )
 
     # Include Robot State Publisher
@@ -140,7 +138,8 @@ def generate_launch_description():
     )
 
     plot_path = Node(
-        package="lab2", executable="plot_path.py", parameters=[{"use_sim_time": True}]
+        package="lab2", executable="plot_path_mpc.py",
+        parameters=[{"use_sim_time": True, "env_tag": env_tag}]
     )
 
     # Create LaunchDescription
@@ -149,6 +148,7 @@ def generate_launch_description():
     # Add launch actions
     launch_description.add_action(rviz)
     launch_description.add_action(world_arg)
+    launch_description.add_action(env_tag_arg)
     launch_description.add_action(gz_sim)
     launch_description.add_action(rsp)
     launch_description.add_action(spawn_entity)
